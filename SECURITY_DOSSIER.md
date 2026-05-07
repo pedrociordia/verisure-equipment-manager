@@ -139,7 +139,7 @@ The same three-layer pattern is applied to `debt_movements` via the existing `de
 - `.env` untracked, listed in `.gitignore` (`.env*` plus `!.env.example`).
 - `.env.example` contains placeholder keys only (empty values).
 - Service role key held only as edge-function environment variable. `grep -r SERVICE_ROLE src/` returns no matches; verified by CI.
-- The Supabase publishable / anon key shipped in the client bundle is non-privileged by design (see §4a). It has been rotated as a hygiene measure.
+- The Supabase publishable / anon key shipped in the client bundle is non-privileged by design (see §4a). The current key was minted with the current Supabase project and is the public-facing client key; rotation is available without downtime via Supabase's coexistence model where a new publishable key can be issued and adopted before revoking the previous one.
 - `gitleaks` runs on every PR via `.github/workflows/ci.yml`.
 
 ### 3.6 Input validation
