@@ -1,0 +1,1 @@
+ALTER TABLE public.people ALTER COLUMN pers_id TYPE text USING pers_id::text;

@@ -1,0 +1,2 @@
+ALTER TABLE public.debt_cases ADD COLUMN IF NOT EXISTS frozen_engine_debt numeric(10,2) NULL;
+COMMENT ON COLUMN public.debt_cases.frozen_engine_debt IS 'Snapshot of currentAssetsDebt + adjustment from legacy CSV import. NULL = app-managed case (use live engine). Non-null = historical case (immutable).';

@@ -1,0 +1,1 @@
+ALTER TABLE public.people ADD CONSTRAINT people_pers_id_unique UNIQUE (pers_id);
