@@ -52,8 +52,9 @@ External rating: **A+ on securityheaders.com** (you can verify directly: `curl -
 
 - **Data controller**: Verisure Netherlands. Data subject requests via Verisure NL HR/Privacy.
 - **Lawful basis (GDPR Art. 6)**: 6(1)(b) performance of the employment contract; 6(1)(f) legitimate interest as secondary.
-- **Data residency**: Supabase project in EU Central (`eu-central-1`, Frankfurt). Production frontend host TBD by InfoSec/IT, EU/EEA only.
-- **Processor agreements (Art. 28)**: DPA with Supabase signed, available on request. DPA with future frontend host to be executed before production deployment.
+- **Data residency**: Supabase project in `eu-west-1` (Dublin, Ireland). Frontend hosted on Vercel EU region. No personal data leaves EU/EEA.
+- **Hosting ownership (development environment)**: the application currently runs on a dedicated Supabase organization (`verisure-equipment-dev`, Pro Plan, `eu-west-1` / Dublin) and a dedicated Vercel team (Pro Plan), both under the System Owner's control. Supabase Pro includes a 99.9% uptime SLA and daily backups with 7-day retention. This is deliberate for the development and InfoSec review phase. On approval, we will initiate corporate procurement with Verisure IT to provision Verisure NL-owned Supabase and Vercel accounts under Verisure NL DPAs, with plan tiers agreed with InfoSec and a controlled migration of codebase and data. Until that point, the environment contains synthetic data only.
+- **Processor agreements (Art. 28)**: DPA with Supabase signed and on file for the current development organisation; available on request. The Verisure NL ↔ Supabase DPA (and Vercel equivalent) will be executed as part of the corporate-account migration above, prior to any real-personal-data load.
 - **Retention**: audit logs 2 years general, 7 years for fiscally-relevant; equipment transactions and signatures retained during employment plus 7 years post-`exit_date` per Dutch art. 52 AWR.
 - **Breach notification**: 72-hour process to the Autoriteit Persoonsgegevens, GDPR Art. 33–34.
 - **HR / Works Council (Ondernemingsraad)**: consultation completed.
@@ -61,9 +62,9 @@ External rating: **A+ on securityheaders.com** (you can verify directly: `curl -
 
 **Roadmap (full disclosure, see dossier §5)**
 
-1. **Corporate SSO via Supabase enterprise SAML/OIDC connector**, within 4 weeks of approval. Replaces email/password entirely.
-2. **Read-only Snowflake integration** (post-approval, separate review). Source-only, role-based authentication (service identity, not personal — same access pattern Verisure already uses for Power BI). Data scope strictly limited to new hires and exits: employee number plus employment start/end dates. No customer data, no salary, no contact details, no Art. 9 GDPR special-category data. Snowflake is an already-approved Verisure data platform; no new TPA is requested for it.
-3. **Production frontend host selection** (pending InfoSec/IT).
+1. **Infrastructure ownership migration to Verisure NL corporate accounts** (pre-production, see dossier §5.0). Provisioning of Verisure NL-owned Supabase and Vercel accounts under Verisure NL DPAs, with plan tiers and region (EU/EEA only, `eu-west-1` baseline) agreed with InfoSec. Codebase and configuration transferred under corporate governance. No real personal data is loaded until this migration completes. This precedes the SSO migration below.
+2. **Corporate SSO via Supabase enterprise SAML/OIDC connector**, within 4 weeks of approval. Replaces email/password entirely.
+3. **Read-only Snowflake integration** (post-approval, separate review). Source-only, role-based authentication (service identity, not personal — same access pattern Verisure already uses for Power BI). Data scope strictly limited to new hires and exits: employee number plus employment start/end dates. No customer data, no salary, no contact details, no Art. 9 GDPR special-category data. Snowflake is an already-approved Verisure data platform; no new TPA is requested for it.
 4. **Engineering-quality improvements** (TS strict, TanStack Query, code splitting, Sentry, signature storage migration) over 6 months. Not security-critical; tracked in the application repository roadmap.
 
 **Operational note**

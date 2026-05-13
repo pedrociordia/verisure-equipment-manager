@@ -2,8 +2,8 @@
 
 **Prepared for:** Information Security Review
 **Application:** Verisure Equipment Manager (Netherlands)
-**Version:** 1.0
-**Date:** 2026-05-06
+**Version:** v1.2-draft
+**Date:** 2026-05-13
 **Prepared by:** Pedro Ciordia, System Owner
 **Staging URL (for review):** https://verisure-equipment.vercel.app
 
@@ -23,7 +23,8 @@ The application has been built and hardened against a defense-in-depth security 
 - **Supply chain** — `npm audit --omit=dev` reports zero critical and zero high in runtime, no documented exceptions. Spreadsheet parsing migrated from `xlsx` to `exceljs` (MIT, no open advisories) plus `papaparse` for CSV.
 - **HTTP security headers** — strict CSP (`script-src 'self'`, no inline, no remote), HSTS preload-eligible, X-Frame-Options DENY, COOP/CORP same-origin, Permissions-Policy disabling sensors and capabilities, Cache-Control no-store. All 14 headers verifiable via `curl -I` against the staging URL above. External rating: **A+ on securityheaders.com**.
 - **Auth posture** — email/password with mandatory TOTP MFA for privileged roles, password floor 12, lockout, 30-minute idle timeout with full client-state clearing, JWT 1h with refresh-token rotation. Corporate SSO is the immediate planned next step (§5).
-- **GDPR posture** — lawful basis Art. 6(1)(b) primary plus 6(1)(f) secondary, EU Central data residency (`eu-central-1`, Frankfurt), DPA with Supabase signed, retention anchored to Dutch art. 52 AWR, 72-hour breach notification path to the Autoriteit Persoonsgegevens, Works Council consultation completed.
+- **GDPR posture** — lawful basis Art. 6(1)(b) primary plus 6(1)(f) secondary, EU/EEA data residency (Supabase `eu-west-1`, Dublin, Ireland), DPA with Supabase signed, retention anchored to Dutch art. 52 AWR, 72-hour breach notification path to the Autoriteit Persoonsgegevens, Works Council consultation completed.
+- **Hosting ownership (development environment)** — the application is currently hosted under a dedicated Supabase organization (`verisure-equipment-dev`, Pro Plan, `eu-west-1` / Dublin, with 99.9% uptime SLA and daily backups, 7-day retention) and a dedicated Vercel team (Pro Plan), both under the System Owner's control. This configuration is deliberate for the development and InfoSec review phase. Upon InfoSec approval, corporate procurement will be initiated with Verisure IT to provision Verisure NL-owned Supabase and Vercel accounts under Verisure NL DPAs, with plan tiers agreed with InfoSec and a controlled migration of codebase and data. Until that point, the environment contains synthetic data only (see §6).
 - **Verifiability** — every claim in this dossier is verified by `scripts/verify-dossier.sh`, which runs in CI on every PR. Latest run: **38 passed, 0 failed, 2 warnings** (warnings are non-blocking engineering-quality items).
 
 One narrow residual item is disclosed in §4. The roadmap in §5 discloses every planned post-approval evolution including SSO migration and a read-only Snowflake integration.
@@ -239,8 +240,9 @@ Retention follows Dutch fiscal retention (art. 52 AWR — 7 years for records su
 - **Data subjects** — internal Verisure NL field employees only.
 - **Categories of personal data** — name, internal employee identifiers (`pers_id`, `sales_id`), branch assignment, employment dates, contract type, equipment-transaction records, handwritten acknowledgement signatures.
 - **No Art. 9 special-category data**, no Art. 10 criminal data, no Art. 22 automated decisions with legal/significant effect.
-- **Data residency** — Supabase project in `eu-central-1` (Frankfurt, Germany). No personal data transferred outside EU/EEA. Production frontend host TBD by InfoSec/IT, EU/EEA only.
-- **Processor agreement (Art. 28)** — DPA with Supabase signed and on file. DPA with future frontend host to be executed before production deployment.
+- **Data residency** — Supabase project in `eu-west-1` (Dublin, Ireland). No personal data transferred outside EU/EEA. Production frontend host pending corporate-account migration (see below), EU/EEA only.
+- **Hosting ownership (current state)** — the development environment of the Equipment Manager is hosted in a dedicated Supabase organization (`verisure-equipment-dev`, Pro Plan, `eu-west-1` / Dublin, Ireland) under the System Owner's control, and a dedicated Vercel team (Pro Plan) also under the System Owner's control. Supabase Pro includes a 99.9% uptime SLA and daily backups with 7-day retention. This configuration is deliberate for the development and InfoSec review phase. Upon InfoSec approval, corporate procurement will be initiated with Verisure IT to provision Verisure NL-owned Supabase and Vercel accounts, with DPAs executed in Verisure NL's name, plan tiers agreed with InfoSec, and a controlled migration of codebase and data under corporate governance. Until that point, the development environment contains synthetic data only.
+- **Processor agreement (Art. 28)** — DPA with Supabase signed and on file for the development environment under the System Owner's organisation. Execution of the Verisure NL ↔ Supabase DPA (and the equivalent for Vercel) is captured as a pre-production milestone under the corporate-account migration in §5, prior to any real-personal-data load.
 - **Privacy notice for employees** — information on this processing included in the Verisure NL standard employee privacy notice.
 - **Works Council (Ondernemingsraad)** — consultation completed. Rollout paused pending InfoSec approval; will proceed on consulted terms.
 - **DPIA (Art. 35)** — not mandated for this scope (internal employee equipment tracking, no Art. 9 data, no large-scale or cross-border transfer, no systematic monitoring of public spaces, not on the Autoriteit Persoonsgegevens published list). Equivalent assessment content documented in `docs/equivalent-assessment.md`.
@@ -323,6 +325,10 @@ Required for the SPA refresh-token flow. XSS exfiltration mitigated by strict CS
 ---
 
 ## 5. Roadmap (full disclosure of post-approval evolution)
+
+### 5.0 Migration of infrastructure ownership to Verisure NL corporate accounts (pre-production)
+
+Migration of infrastructure ownership to Verisure NL corporate accounts on Supabase and Vercel, with DPAs executed in Verisure NL's name. Corporate procurement to be initiated with Verisure IT on InfoSec approval. Plan tiers and region (EU/EEA only, `eu-west-1` / Dublin baseline) to be agreed with InfoSec; codebase and configuration to be transferred under corporate governance; no real personal data is loaded until this migration completes. This precedes SSO integration in the post-approval sequence.
 
 ### 5.1 Immediate post-approval (within 4 weeks of approval)
 
@@ -425,7 +431,7 @@ The Verisure Equipment Manager meets the security and compliance requirements fo
 - **Append-only audit log** is enforced at three layers (policy, grant, trigger).
 - **Environment hygiene**: `.env` untracked, anon key rotated, `gitleaks` in CI, service role key server-side only.
 - **Defensive controls**: input validation (Zod plus DB CHECK), strict HTTP security headers (A+ external rating), 30-minute idle timeout with state clearing, production-safe logging, mandatory MFA for privileged roles.
-- **Transport** TLS-only with HSTS preload; **at rest** AES-256 by managed Postgres in `eu-central-1` (Frankfurt); **no personal data leaves EU/EEA**.
+- **Transport** TLS-only with HSTS preload; **at rest** AES-256 by managed Postgres in `eu-west-1` (Dublin); **no personal data leaves EU/EEA**.
 - **GDPR**: Art. 6(1)(b) primary basis, DPA with Supabase, Dutch art. 52 AWR retention, 72-hour breach notification path, Art. 12(3) data-subject rights timeframes, Works Council consulted.
 - **Supply chain**: 0 critical and 0 high in runtime, no documented exceptions.
 - **Roadmap**: SSO immediate post-approval, Snowflake read-only later (separate review), engineering-quality improvements over 6 months.
@@ -435,3 +441,10 @@ The Verisure Equipment Manager meets the security and compliance requirements fo
 **Status: ready for InfoSec review.**
 
 **Reviewer access:** the staging URL `https://verisure-equipment.vercel.app` is available for hands-on inspection. The repository is available on request.
+
+---
+
+## Document changelog
+- v1.0, 2026-04-14 — Initial release.
+- v1.1, 2026-05-06 — Security hardening v1 applied (signature size check, SBC RPCs, audit logs, anon key coexistence model).
+- v1.2-draft, 2026-05-13 — Region correction to eu-west-1 (Dublin); Supabase plan upgrade to Pro reflected; development environment narrative formalised; Verisure NL corporate account migration declared as primary post-approval condition.

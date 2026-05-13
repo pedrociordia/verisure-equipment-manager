@@ -27,7 +27,7 @@ Every claim in the dossier is verified by **[`scripts/verify-dossier.sh`](./scri
 
 - React 18 + TypeScript + Vite 5
 - Tailwind CSS v3 + shadcn/ui
-- Supabase (managed PostgreSQL + Auth + Edge Functions, region `eu-central-1`)
+- Supabase (managed PostgreSQL + Auth + Edge Functions, region `eu-west-1`)
 - exceljs + papaparse for spreadsheet parsing
 
 ---
